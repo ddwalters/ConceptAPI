@@ -1,6 +1,0 @@
-@ConceptAPI_HostAddress = http://localhost:5258
-
-GET {{ConceptAPI_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

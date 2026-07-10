@@ -8,6 +8,12 @@ builder.Services.AddDbContext<ConceptContext>(opts => opts.UseNpgsql(builder.Con
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ConceptContext>();
+    dbContext.Database.Migrate();
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();

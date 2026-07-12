@@ -5,7 +5,7 @@
 namespace ConceptAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class SyncModelChanges : Migration
+    public partial class Currency : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

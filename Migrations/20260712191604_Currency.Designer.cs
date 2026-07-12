@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ConceptAPI.Migrations
 {
     [DbContext(typeof(ConceptContext))]
-    [Migration("20260712182709_SyncModelChanges")]
-    partial class SyncModelChanges
+    [Migration("20260712191604_Currency")]
+    partial class Currency
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

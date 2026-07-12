@@ -11,6 +11,14 @@ public class GachaPullRequest
     public int Count { get; set; } = 1;
 }
 
+public class GachaPullResultItem
+{
+    public int ConceptId { get; set; }
+    public string Name { get; set; } = null!;
+    public int Rarity { get; set; }
+    public int Rank { get; set; }
+}
+
 [Authorize]
 [ApiController]
 [Route("api/conceptownerships")]
@@ -51,7 +59,7 @@ public class ConceptOwnershipController : ControllerBase
     }
 
     [HttpPost("gacha")]
-    public async Task<ActionResult<List<ConceptOwnership>>> GachaPull(GachaPullRequest request)
+    public async Task<ActionResult<List<GachaPullResultItem>>> GachaPull(GachaPullRequest request)
     {
         var userId = GetCurrentUserId();
 
@@ -68,7 +76,7 @@ public class ConceptOwnershipController : ControllerBase
 
         user.Shards -= GachaPullCost;
 
-        var results = new List<ConceptOwnership>();
+        var results = new List<GachaPullResultItem>();
         for (int i = 0; i < 10; i++)
         {
             var conceptIndex = Random.Shared.Next(conceptsAvailable.Count);
@@ -84,7 +92,14 @@ public class ConceptOwnershipController : ControllerBase
             };
 
             _context.ConceptOwnerships.Add(ownership);
-            results.Add(ownership);
+
+            results.Add(new GachaPullResultItem
+            {
+                ConceptId = concept.Id,
+                Name = concept.Name,
+                Rarity = concept.Rarity,
+                Rank = ownership.Rank
+            });
         }
 
         await _context.SaveChangesAsync();

@@ -1,8 +1,11 @@
 using ConceptAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ConceptAPI.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/concepts")]
 public class ConceptController : ControllerBase
@@ -14,24 +17,13 @@ public class ConceptController : ControllerBase
         _context = context;
     }
 
-    [HttpGet("{Id}")]
-    public async Task<ActionResult<Concept>> GetConceptById(int id)
-    {
-        var concept = await _context.Concepts.FindAsync(id);
-
-        if (concept == null)
-            return NotFound(new { message = $"Concept with Id-{id} not found." });
-
-        return Ok(concept);
-    }
-
     [HttpPost()]
     public async Task<ActionResult<Concept>> PostConcept(Concept concept)
     {
         _context.Concepts.Add(concept);
         await _context.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(concept), new { Id = concept.Id }, concept);
+        return CreatedAtAction(nameof(concept), new { concept.Id }, concept);
 
     }
 
@@ -47,6 +39,5 @@ public class ConceptController : ControllerBase
         await _context.SaveChangesAsync();
 
         return NoContent();
-
     }
 }

@@ -10,4 +10,13 @@ public class ConceptContext : DbContext
     }
 
     public DbSet<Concept> Concepts { get; set; }
+    public DbSet<ConceptOwnership> ConceptOwnerships { get; set; }
+    public DbSet<User> Users { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<User>()
+            .HasIndex(u => u.GoogleId)
+            .IsUnique();
+    }
 }

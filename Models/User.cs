@@ -11,5 +11,7 @@
         public int Experiance { get; set; }
         public int Gold { get; set; } // Used for concept/ card upgrades
         public int Shards { get; set; } // needed to gacha pull!
+        public bool IsAnonymous { get; set; }
+        public bool IsAdmin { get; set; }
     }
 }

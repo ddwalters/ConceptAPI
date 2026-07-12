@@ -5,6 +5,8 @@ using Microsoft.IdentityModel.Tokens;
 using FirebaseAdmin.Auth;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text.Json;
+using Newtonsoft.Json.Linq;
 
 namespace ConceptAPI.Controllers;
 
@@ -52,7 +54,9 @@ public class AuthController : ControllerBase
                 FirebaseUid = firebaseUid,
                 Email = email ?? string.Empty,
                 DisplayName = name ?? string.Empty,
-                CreatedAt = DateTimeOffset.UtcNow
+                CreatedAt = DateTimeOffset.UtcNow,
+                IsAnonymous = IsAnonymousSignIn(decodedToken)
+                // IsAdmin intentionally left false - only ever set manually in the DB.
             };
 
             _context.Users.Add(user);
@@ -60,6 +64,24 @@ public class AuthController : ControllerBase
         }
 
         return Ok(new { token = CreateToken(user) });
+    }
+
+    // The sign-in provider lives in the verified token's "firebase" claim, so this can't
+    // be spoofed by the client - unlike IsAdmin, which is never derived from a request at all.
+    private static bool IsAnonymousSignIn(FirebaseToken decodedToken)
+    {
+        if (!decodedToken.Claims.TryGetValue("firebase", out var firebaseClaim))
+            return false;
+
+        string? provider = firebaseClaim switch
+        {
+            JObject jObject => jObject["sign_in_provider"]?.ToString(),
+            JsonElement element when element.TryGetProperty("sign_in_provider", out var p) => p.GetString(),
+            IDictionary<string, object> dict when dict.TryGetValue("sign_in_provider", out var p) => p?.ToString(),
+            _ => null
+        };
+
+        return provider == "anonymous";
     }
 
     private string CreateToken(User user)

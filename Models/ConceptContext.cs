@@ -16,7 +16,7 @@ public class ConceptContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<User>()
-            .HasIndex(u => u.GoogleId)
+            .HasIndex(u => u.FirebaseUid)
             .IsUnique();
     }
 }

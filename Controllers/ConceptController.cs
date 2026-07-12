@@ -1,7 +1,6 @@
 using ConceptAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace ConceptAPI.Controllers;
 
@@ -24,7 +23,6 @@ public class ConceptController : ControllerBase
         await _context.SaveChangesAsync();
 
         return CreatedAtAction(nameof(concept), new { concept.Id }, concept);
-
     }
 
     [HttpDelete("{Id}")]

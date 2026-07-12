@@ -2,7 +2,7 @@ using ConceptAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Google.Apis.Auth;
+using FirebaseAdmin.Auth;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
@@ -29,28 +29,29 @@ public class AuthController : ControllerBase
     [HttpPost()]
     public async Task<ActionResult<object>> Authenticate(GoogleAuthRequest request)
     {
-        GoogleJsonWebSignature.Payload payload;
+        FirebaseToken decodedToken;
         try
         {
-            // TODO: @DW set Google:ClientId (from Google Cloud Console OAuth credentials) in config
-            // before this actually verifies the token came from *your* app.
-            var settings = new GoogleJsonWebSignature.ValidationSettings{ Audience = new[] { _configuration["Google:ClientId"] } };
-            payload = await GoogleJsonWebSignature.ValidateAsync(request.IdToken, settings);
+            decodedToken = await FirebaseAuth.DefaultInstance.VerifyIdTokenAsync(request.IdToken);
         }
-        catch (InvalidJwtException)
+        catch (FirebaseAuthException)
         {
-            return Unauthorized(new { message = "Invalid Google token." });
+            return Unauthorized(new { message = "Invalid Firebase token." });
         }
 
-        var user = await _context.Users.FirstOrDefaultAsync(x => x.GoogleId == payload.Subject);
+        var firebaseUid = decodedToken.Uid;
+        var email = decodedToken.Claims.TryGetValue("email", out var emailClaim) ? emailClaim?.ToString() : null;
+        var name = decodedToken.Claims.TryGetValue("name", out var nameClaim) ? nameClaim?.ToString() : null;
+
+        var user = await _context.Users.FirstOrDefaultAsync(x => x.FirebaseUid == firebaseUid);
 
         if (user == null)
         {
             user = new User
             {
-                GoogleId = payload.Subject,
-                Email = payload.Email,
-                DisplayName = payload.Name,
+                FirebaseUid = firebaseUid,
+                Email = email ?? string.Empty,
+                DisplayName = name ?? string.Empty,
                 CreatedAt = DateTimeOffset.UtcNow
             };
 

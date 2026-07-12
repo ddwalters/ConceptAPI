@@ -3,7 +3,7 @@
     public class User
     {
         public int Id { get; set; }
-        public string GoogleId { get; set; } = null!;
+        public string FirebaseUid { get; set; } = null!;
         public string Email { get; set; } = null!;
         public DateTimeOffset CreatedAt { get; set; }
         public string DisplayName { get; set; } = null!;
